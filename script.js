@@ -21,7 +21,6 @@ const near = 0.1;   //  Where the objects starts to be visible
 const far = 1000;   //  Where the objects stop being visible
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.set(5, 4, 6);
-// camera.position.set(0, 0, 4);
 camera.lookAt(new THREE.Vector3(0,0,0));
 
 // cube
@@ -31,18 +30,29 @@ const material1 = new THREE.MeshBasicMaterial({
     wireframe: true
 });
 
-const material = new THREE.MeshNormalMaterial();
-
+const material2 = new THREE.MeshNormalMaterial();
+const material = new THREE.MeshStandardMaterial({ color: 0x00ff00});
 const cube = new THREE.Mesh(geometry, material);
+cube.position.set(0,3,0);
+cube.castShadow = true;
 scene.add(cube);
+
+
+//  Add lights
+const light = new THREE.DirectionalLight(0xffffff, 1);
+light.position.set(1,4,0);
+light.castShadow = true;
+scene.add(light);
+
 
 
 //  Ground
 const geometryground = new THREE.PlaneGeometry( 7, 40 );
-const materialground = new THREE.MeshBasicMaterial( {color: 0xff, side: THREE.DoubleSide} );
+const materialground = new THREE.MeshStandardMaterial( {color: 0xff, side: THREE.DoubleSide} );
 const planeground = new THREE.Mesh( geometryground, materialground );
 planeground.position.set(0,-1,0);
 planeground.rotateX(Math.PI/2)
+planeground.receiveShadow = true;
 scene.add( planeground );
 
 
@@ -55,6 +65,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 // rendering the scene
 const container = document.querySelector('#threejs-container');
 container.append(renderer.domElement);
+renderer.shadowMap.enabled = true;
 renderer.render(scene, camera);
 
 
