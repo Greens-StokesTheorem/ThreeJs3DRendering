@@ -121,7 +121,6 @@ function random() {
 
 function animate(num) {
 
-    alert(num)
     cube.translateZ(num)
     renderer.render(scene, camera);
 
