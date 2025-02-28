@@ -2,6 +2,7 @@
 // Your first Three.js application
 
 let wdown = false;
+const speed = 0.2;
 
 
 // sizes
@@ -40,7 +41,7 @@ scene.add(cube);
 const geometryground = new THREE.PlaneGeometry( 7, 40 );
 const materialground = new THREE.MeshBasicMaterial( {color: 0xff, side: THREE.DoubleSide} );
 const planeground = new THREE.Mesh( geometryground, materialground );
-planeground.position.set(0,0,0);
+planeground.position.set(0,-1,0);
 planeground.rotateX(Math.PI/2)
 scene.add( planeground );
 
@@ -60,32 +61,6 @@ renderer.render(scene, camera);
 
 
 
-document.addEventListener("pointerdown", function (event) {
-
-    let camerax = 0;
-    let cameray = 0;
-
-    let initx = event.clientX;
-    let inity = event.clientY;
-
-    document.addEventListener("pointermove", function (event) {
-
-        let posx = event.clientX;
-        let posy = event.clientY;
-
-        let delx = posx - initx;
-        let dely = posy - inity;
-
-        camerax += delx;
-        cameray += dely;
-
-        camera.lookAt(camerax, 0, cameray)
-    
-    })
-
-
-})
-
 document.addEventListener("keyup", function () {
     wdown = false;
 })
@@ -95,21 +70,35 @@ document.addEventListener("keydown", function (event) {
     if (event.key == "w") {
 
         wdown = true;
-        animate(-1);
+        animatey(true);
+
+    } else if (event.key == "s") {
+
+        wdown = true;
+        animatey(false);
+    
+    } else if (event.key == "a") {
+
+        wdown = true;
+        animatex(true);
 
     } else if (event.key == "d") {
 
         wdown = true;
-        animate(+1);
+        animatex(false);
+
+    } else if (event.key == "m") {
+
+        rotatecube();
 
     } else {
 
-        const geometry = new THREE.BoxGeometry(random(), random(), random());
-        const material = new THREE.MeshNormalMaterial();
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(-random(),random(),-random());
-        scene.add(cube);
-        renderer.render(scene, camera);
+        // const geometry = new THREE.BoxGeometry(random(), random(), random());
+        // const material = new THREE.MeshNormalMaterial();
+        // const cube = new THREE.Mesh(geometry, material);
+        // cube.position.set(-random(),random(),-random());
+        // scene.add(cube);
+        // renderer.render(scene, camera);
     }
 
 })
@@ -119,14 +108,56 @@ function random() {
     return Math.floor(Math.random() * 5);
 }
 
-function animate(num) {
+//   True is forwards   False if backwords
+function animatey(direction) {
 
-    cube.translateZ(num)
+    let delx;
+
+    if (direction == true) {
+        delx = -speed;
+    } else if (direction == false) {
+
+        delx = speed;
+    }
+
+
+    cube.translateZ(delx);
     renderer.render(scene, camera);
 
     if (wdown == true) {
-        requestAnimationFrame(animate);
+        requestAnimationFrame(() => animatey(direction));
     } else {
         //  pass
     }
+}
+
+//  true is left     false is right (ironic)
+function animatex(direction) {
+
+    let dely;
+
+    if (direction == true) {
+        dely = -speed;
+    } else {
+        dely = speed;
+    }
+
+    cube.translateX(dely);
+    renderer.render(scene, camera);
+
+    if (wdown== true) {
+        requestAnimationFrame(() => animatex(direction));
+    } else {
+        //  pass
+    }
+
+}
+
+function rotatecube() {
+
+    cube.rotation.y += 0.03;
+    cube.rotation.x += 0.03;
+    renderer.render(scene, camera)
+    requestAnimationFrame(rotatecube);
+
 }
