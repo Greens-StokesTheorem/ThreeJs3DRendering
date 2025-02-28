@@ -20,15 +20,15 @@ const aspect = window.innerWidth / window.innerHeight;
 const near = 0.1;   //  Where the objects starts to be visible
 const far = 1000;   //  Where the objects stop being visible
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(5, 4, 6);
-camera.lookAt(new THREE.Vector3(0,0,0));
+camera.position.set(30, 20, 0);
+camera.lookAt(new THREE.Vector3(0,20,0));
 
 // cube
 const geometry = new THREE.BoxGeometry(2, 2, 2);
 const material2 = new THREE.MeshNormalMaterial();
-const material = new THREE.MeshStandardMaterial({ color: 0x00ff00});
+const material = new THREE.MeshBasicMaterial({ color: 0x00ff00});
 const cube = new THREE.Mesh(geometry, material);
-cube.position.set(0,3,0);
+cube.position.set(0,40,0);
 cube.castShadow = true;
 scene.add(cube);
 
@@ -43,7 +43,7 @@ scene.add(light);
 
 //  Ground
 const geometryground = new THREE.PlaneGeometry( 7, 40 );
-const materialground = new THREE.MeshStandardMaterial( {color: 0xff, side: THREE.DoubleSide} );
+const materialground = new THREE.MeshBasicMaterial( {color: 0xff, side: THREE.DoubleSide} );
 const planeground = new THREE.Mesh( geometryground, materialground );
 planeground.position.set(0,-1,0);
 planeground.rotateX(Math.PI/2)
@@ -159,12 +159,17 @@ function animatex(direction) {
 
 }
 
+let gravity = -0.001;
+let i = 0;
+
 function rotatecube() {
 
-    cube.rotation.y += 0.03;
-    cube.rotation.x += 0.03;
+    cube.position.y += 0.4 * (i * i * gravity);
+    i += 1;
+    console.log(i);
+
     renderer.render(scene, camera)
-    requestAnimationFrame(rotatecube);
+    requestAnimationFrame(() => rotatecube());
 
 }
 
@@ -172,7 +177,7 @@ function rotatecube() {
 document.getElementById("switch").addEventListener("click", function (event) {
 
     console.log("/")
-    window.location.href = "gravitytest.html";
+    window.location.href = "index.html";
 
 })
 
