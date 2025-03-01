@@ -53,18 +53,41 @@
             justify-content: center;
          }
 
+         #score {
+            position: absolute;
+            top: 4%;
+            left: 3%;
+            font-size: 3rem;
+            color: aqua;
+            transition: 1500ms ease;
+            transform: translate(-50%, -50%);
+         }
+         #score.animate {
+            animation-name: spin;
+            animation-duration: 1500ms;
+            animation-timing-function: ease;
+            animation-iteration-count: infinite;
+            animation-direction: alternate-reverse;
+         }
+         @keyframes spin {
+            from {transform: rotate(0deg);}
+            to {transform: rotate(180deg);}
+         }
+
       </style>
 
       <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
    </head>
-   <body>
+   <body onload="spin()">
 
 
       <div id="threejs-container"></div>
 
       <div id="switch" class="gravitybutton">GravitySim</div>
       <div id="switchcamera" class="camerabutton">Camera</div>
+
+      <div id="score">0</div>
 
       <script src="script.js">
       </script>

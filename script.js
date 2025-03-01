@@ -2,6 +2,7 @@
 // Your first Three.js application
 // import { OrbitControls } from "OrbitControls.js";
 
+let score = 0;
 let spawnrate = 30;
 let wdown = false;
 const speed = 0.2;
@@ -186,7 +187,7 @@ const enemies = [];
 
 
 // renderer
-const renderer = new THREE.WebGL1Renderer();
+const renderer = new THREE.WebGL1Renderer({alpha: true});
 renderer.setSize(width, height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -304,6 +305,9 @@ function animate() {
 
     if (frames % spawnrate === 0) {
 
+        score++;
+        document.getElementById("score").innerHTML = score;
+
         console.log("/")
         const enemy = new Box({width: 1, height: 1, depth: 1, 
             velocity: {x: 0, y: -0.1, z: Math.random()}, 
@@ -322,3 +326,11 @@ function animate() {
 
 
 animate();
+
+
+function spin() {
+
+    console.log("akj")
+    document.getElementById("score").classList.add("animate")
+
+}
