@@ -2,7 +2,7 @@
 // Your first Three.js application
 // import { OrbitControls } from "OrbitControls.js";
 
-
+let spawnrate = 30;
 let wdown = false;
 const speed = 0.2;
 let controls = {w: {pressed: false},
@@ -27,7 +27,7 @@ const aspect = width / height;
 const near = 0.1;   //  Where the objects starts to be visible
 const far = 30000;   //  Where the objects stop being visible
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, 7, 6);
+camera.position.set(0, 7, 9);
 camera.lookAt(new THREE.Vector3(0,1,0));
 
 class Box extends THREE.Mesh {
@@ -176,15 +176,12 @@ scene.add(skybox);
 
 
 //  Ground
-const ground = new Box({width: 20, height: 2, depth: 40, color: "#0000ff", velocity: {x: 0, y: 0, z: 0}, position: {x: 0, y: -1, z: 0}})
+const ground = new Box({width: 20, height: 2, depth: 80, color: "#0000ff", velocity: {x: 0, y: 0, z: 0}, position: {x: 0, y: -1, z: 0}})
 ground.receiveShadow = true;
 scene.add( ground );
 
 
-// const enemy = new Box({width: 1, height: 1, depth: 1, velocity: {x: 0, y: -0.1, z: 0.03}, position: {x: 0, y: 2, z: -14}, color: "red", zAcceleration: true});
-// enemy.castShadow = true;
-// scene.add(enemy);
-// const enemies = [enemy];
+
 const enemies = [];
 
 
@@ -272,6 +269,9 @@ document.getElementById("switchcamera").addEventListener("click", function (even
 let frames = 0;
 function animate() {
 
+    if (spawnrate > 10) spawnrate--;
+
+
     frames++;
     const animationId = requestAnimationFrame(animate);
     renderer.render(scene, camera);
@@ -302,12 +302,12 @@ function animate() {
         }
     })
 
-    if (frames % 30 === 0) {
+    if (frames % spawnrate === 0) {
 
         console.log("/")
         const enemy = new Box({width: 1, height: 1, depth: 1, 
             velocity: {x: 0, y: -0.1, z: Math.random()}, 
-            position: {x: random(-5,5), y: 2, z: -14}, color: "red", 
+            position: {x: random(-9,9), y: 2, z: -34}, color: "red", 
             zAcceleration: true});
 
         enemy.castShadow = true;
