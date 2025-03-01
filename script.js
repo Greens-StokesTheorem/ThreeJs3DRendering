@@ -306,7 +306,7 @@ function animate() {
 
         console.log("/")
         const enemy = new Box({width: 1, height: 1, depth: 1, 
-            velocity: {x: 0, y: -0.1, z: 0.03}, 
+            velocity: {x: 0, y: -0.1, z: Math.random()}, 
             position: {x: random(-5,5), y: 2, z: -14}, color: "red", 
             zAcceleration: true});
 
