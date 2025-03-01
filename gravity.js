@@ -84,7 +84,7 @@ class Box extends THREE.Mesh {
 
 
 // cube
-const cube = new Box({width: 2, height: 2, depth: 2, velocity: {x: 0, y: -0.1, z: 0}, position: {x: 0, y: 10, z: 0}});
+const cube = new Box({width: 2, height: 2, depth: 2, velocity: {x: 0, y: -0.1, z: 0}, position: {x: 0, y: 7.383764, z: 0}});
 cube.castShadow = true;
 scene.add(cube);
 

@@ -18,37 +18,115 @@ scene.background = new THREE.Color("#262626");
 const fov = 80;
 const aspect = window.innerWidth / window.innerHeight;
 const near = 0.1;   //  Where the objects starts to be visible
-const far = 1000;   //  Where the objects stop being visible
+const far = 30000;   //  Where the objects stop being visible
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(5, 4, 6);
-camera.lookAt(new THREE.Vector3(0,0,0));
+camera.position.set(0, 2, 6);
+camera.lookAt(new THREE.Vector3(0,1,0));
+
+class Box extends THREE.Mesh {
+
+    constructor({width, height, depth, color = "#00ff00", velocity = {
+        x: 0,
+        y: 0,
+        z: 0
+    }, position = {
+        x: 0,
+        y: 0,
+        z: 0}}) {
+
+        super(new THREE.BoxGeometry(width, height, depth), 
+              new THREE.MeshStandardMaterial({ color: color}));
+
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
+
+        this.position.set(position.x, position.y, position.z);
+        this.bottom = this.position.y - this.height / 2;
+        this.top = this.position.y + this.height / 2;
+
+        this.velocity = velocity;
+        this.gravity = -0.06;
+        
+    }
+
+    update(group) {
+
+        this.bottom = this.position.y - this.height / 2;
+        this.top = this.position.y + this.height / 2;
+
+        this.velocity.y += this.gravity;
+        this.applygravity()
+
+    }
+
+    applygravity() {
+
+        if (this.bottom + this.velocity.y <= ground.top) {
+
+            //  Changes direction of movement
+            this.velocity.y *= 0.8;
+            this.velocity.y = -this.velocity.y;
+
+        } else {
+
+            //  Keeps moving
+            this.position.y += this.velocity.y;
+
+        }
+    }
+
+}
+
+
 
 // cube
-const geometry = new THREE.BoxGeometry(2, 2, 2);
-const material2 = new THREE.MeshNormalMaterial();
-const material = new THREE.MeshStandardMaterial({ color: 0x00ff00});
-const cube = new THREE.Mesh(geometry, material);
-cube.position.set(0,3,0);
+const cube = new Box({width: 1, height: 1, depth: 1, velocity: {x: 0, y: -0.1, z: 0}, position: {x: 0, y: 5, z: 0}});
 cube.castShadow = true;
 scene.add(cube);
 
 
 //  Add lights
 const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(1,4,0);
+light.position.set(4,8,5);
 light.castShadow = true;
 scene.add(light);
 
 
+let materialarray = [];
+let texture_ft = new THREE.TextureLoader().load("clouds1_north.bmp")
+let texture_bk = new THREE.TextureLoader().load("clouds1_south.bmp")
+let texture_up = new THREE.TextureLoader().load("clouds1_up.bmp")
+let texture_dn = new THREE.TextureLoader().load("clouds1_down.bmp")
+let texture_rt = new THREE.TextureLoader().load("clouds1_east.bmp")
+let texture_lf = new THREE.TextureLoader().load("clouds1_west.bmp")
+
+
+materialarray.push(new THREE.MeshBasicMaterial({map: texture_ft}));
+materialarray.push(new THREE.MeshBasicMaterial({map: texture_bk}));
+materialarray.push(new THREE.MeshBasicMaterial({map: texture_up}));
+materialarray.push(new THREE.MeshBasicMaterial({map: texture_dn}));
+materialarray.push(new THREE.MeshBasicMaterial({map: texture_lf}));
+materialarray.push(new THREE.MeshBasicMaterial({map: texture_rt}));
+// materialarray.push(new THREE.MeshBasicMaterial({map: texture_up}))
+
+for (i = 0; i < 6; i++) {
+    materialarray[i].side = THREE.BackSide;
+}
+
+//  Box
+let length = 150;
+skyboxGeo = new THREE.BoxGeometry(length, length, length);
+skybox = new THREE.Mesh(skyboxGeo, materialarray);
+scene.add(skybox);
+
+
+
 
 //  Ground
-const geometryground = new THREE.PlaneGeometry( 7, 40 );
-const materialground = new THREE.MeshStandardMaterial( {color: 0xff, side: THREE.DoubleSide} );
-const planeground = new THREE.Mesh( geometryground, materialground );
-planeground.position.set(0,-1,0);
-planeground.rotateX(Math.PI/2)
-planeground.receiveShadow = true;
-scene.add( planeground );
+const ground = new Box({width: 20, height: 2, depth: 40, color: "#0000ff", velocity: {x: 0, y: 0, z: 0}, position: {x: 0, y: -1, z: 0}})
+ground.receiveShadow = true;
+scene.add( ground );
 
 
 
@@ -71,7 +149,7 @@ document.addEventListener("keyup", function () {
     wdown = false;
 })
 
-document.addEventListener("keypress", function (event) {
+document.addEventListener("keydown", function (event) {
 
     if (event.key == "w") {
 
@@ -97,6 +175,10 @@ document.addEventListener("keypress", function (event) {
 
         rotatecube();
 
+    } else if (event.key == "p") {
+
+        animate(ground);
+
     } else {
 
         // const geometry = new THREE.BoxGeometry(random(), random(), random());
@@ -114,59 +196,8 @@ function random() {
     return Math.floor(Math.random() * 5);
 }
 
-//   True is forwards   False if backwords
-function animatey(direction) {
-
-    let delx;
-
-    if (direction == true) {
-        delx = -speed;
-    } else if (direction == false) {
-
-        delx = speed;
-    }
-
-
-    cube.translateZ(delx);
-    renderer.render(scene, camera);
-
-    if (wdown == true) {
-        requestAnimationFrame(() => animatey(direction));
-    } else {
-        //  pass
-    }
-}
 
 //  true is left     false is right (ironic)
-function animatex(direction) {
-
-    let dely;
-
-    if (direction == true) {
-        dely = -speed;
-    } else {
-        dely = speed;
-    }
-
-    cube.translateX(dely);
-    renderer.render(scene, camera);
-
-    if (wdown== true) {
-        requestAnimationFrame(() => animatex(direction));
-    } else {
-        //  pass
-    }
-
-}
-
-function rotatecube() {
-
-    cube.rotation.y += 0.03;
-    cube.rotation.x += 0.03;
-    renderer.render(scene, camera)
-    requestAnimationFrame(rotatecube);
-
-}
 
 
 document.getElementById("switch").addEventListener("click", function (event) {
@@ -176,4 +207,13 @@ document.getElementById("switch").addEventListener("click", function (event) {
 
 })
 
-// rotatecube();
+function animate() {
+
+    requestAnimationFrame(animate);
+    renderer.render(scene, camera);
+    skybox.rotateY(0.001);
+    cube.update(ground);
+
+}
+
+animate();
