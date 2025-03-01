@@ -71,7 +71,7 @@ document.addEventListener("keyup", function () {
     wdown = false;
 })
 
-document.addEventListener("keydown", function (event) {
+document.addEventListener("keypress", function (event) {
 
     if (event.key == "w") {
 

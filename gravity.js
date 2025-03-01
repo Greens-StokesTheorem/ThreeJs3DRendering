@@ -3,7 +3,10 @@
 
 let wdown = false;
 const speed = 0.2;
-
+let gravity = -0.05;
+let i = 0;
+let inity;
+let final;
 
 // sizes
 const width = window.innerWidth;
@@ -20,35 +23,84 @@ const aspect = window.innerWidth / window.innerHeight;
 const near = 0.1;   //  Where the objects starts to be visible
 const far = 1000;   //  Where the objects stop being visible
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(30, 20, 0);
-camera.lookAt(new THREE.Vector3(0,20,0));
+camera.position.set(16, 5, 0);
+camera.lookAt(new THREE.Vector3(0,7,0));
+
+
+class Box extends THREE.Mesh {
+
+    constructor({width, height, depth, color = "#00ff00", velocity = {
+        x: 0,
+        y: 0,
+        z: 0
+    }, position = {
+        x: 0,
+        y: 0,
+        z: 0}}) {
+
+        super(new THREE.BoxGeometry(width, height, depth), 
+              new THREE.MeshStandardMaterial({ color: color}));
+
+        this.width = width;
+        this.height = height;
+        this.depth = depth;
+
+        this.position.set(position.x, position.y, position.z);
+        this.bottom = this.position.y - this.height / 2;
+        this.top = this.position.y + this.height / 2;
+
+        this.velocity = velocity;
+        this.gravity = -0.1;
+        
+    }
+
+    update(group) {
+        this.bottom = this.position.y - this.height / 2;
+        this.top = this.position.y + this.height / 2;
+
+        this.velocity.y += this.gravity;
+        this.applygravity()
+
+    }
+
+    applygravity() {
+
+        if (this.bottom + this.velocity.y <= ground.top) {
+
+            //  Changes direction of movement
+            this.velocity.y *= 0.8;
+            this.velocity.y = -this.velocity.y;
+
+        } else {
+
+            //  Keeps moving
+            this.position.y += this.velocity.y;
+
+        }
+    }
+
+}
+
+
 
 // cube
-const geometry = new THREE.BoxGeometry(2, 2, 2);
-const material2 = new THREE.MeshNormalMaterial();
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00});
-const cube = new THREE.Mesh(geometry, material);
-cube.position.set(0,40,0);
+const cube = new Box({width: 2, height: 2, depth: 2, velocity: {x: 0, y: -0.1, z: 0}, position: {x: 0, y: 10, z: 0}});
 cube.castShadow = true;
 scene.add(cube);
 
 
 //  Add lights
 const light = new THREE.DirectionalLight(0xffffff, 1);
-light.position.set(1,4,0);
+light.position.set(5,14,0);
 light.castShadow = true;
 scene.add(light);
 
 
 
 //  Ground
-const geometryground = new THREE.PlaneGeometry( 7, 40 );
-const materialground = new THREE.MeshBasicMaterial( {color: 0xff, side: THREE.DoubleSide} );
-const planeground = new THREE.Mesh( geometryground, materialground );
-planeground.position.set(0,-1,0);
-planeground.rotateX(Math.PI/2)
-planeground.receiveShadow = true;
-scene.add( planeground );
+const ground = new Box({width: 7, height: 2, depth: 40, color: "#0000ff", velocity: {x: 0, y: 0, z: 0}, position: {x: 0, y: -1, z: 0}})
+ground.receiveShadow = true;
+scene.add( ground );
 
 
 
@@ -95,6 +147,7 @@ document.addEventListener("keydown", function (event) {
 
     } else if (event.key == "m") {
 
+        init = cube.position.y;
         rotatecube();
 
     } else {
@@ -159,18 +212,14 @@ function animatex(direction) {
 
 }
 
-let gravity = -0.001;
-let i = 0;
 
 function rotatecube() {
 
-    cube.position.y += 0.4 * (i * i * gravity);
-    i += 1;
-    console.log(i);
+    requestAnimationFrame(rotatecube);
+    renderer.render(scene, camera);
+    cube.update(ground)
 
-    renderer.render(scene, camera)
-    requestAnimationFrame(() => rotatecube());
-
+    
 }
 
 
@@ -181,4 +230,3 @@ document.getElementById("switch").addEventListener("click", function (event) {
 
 })
 
-// rotatecube();
