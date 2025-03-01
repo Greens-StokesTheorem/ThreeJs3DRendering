@@ -1,6 +1,11 @@
 // Hello Cube App
 // Your first Three.js application
-// import { OrbitControls } from "OrbitControls.js";
+
+// import { FirstPersonControls } from "./modules/FirstPersonControls.js";
+
+
+document.addEventListener("DOMContentLoaded", () =>{
+
 
 let score = 0;
 let spawnrate = 30;
@@ -30,6 +35,8 @@ const far = 30000;   //  Where the objects stop being visible
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 camera.position.set(0, 7, 9);
 camera.lookAt(new THREE.Vector3(0,1,0));
+
+
 
 class Box extends THREE.Mesh {
 
@@ -147,12 +154,12 @@ scene.add(light);
 
 
 let materialarray = [];
-let texture_ft = new THREE.TextureLoader().load("clouds1_north.bmp")
-let texture_bk = new THREE.TextureLoader().load("clouds1_south.bmp")
-let texture_up = new THREE.TextureLoader().load("clouds1_up.bmp")
-let texture_dn = new THREE.TextureLoader().load("clouds1_down.bmp")
-let texture_rt = new THREE.TextureLoader().load("clouds1_east.bmp")
-let texture_lf = new THREE.TextureLoader().load("clouds1_west.bmp")
+let texture_ft = new THREE.TextureLoader().load("/images/clouds1_north.bmp")
+let texture_bk = new THREE.TextureLoader().load("/images/clouds1_south.bmp")
+let texture_up = new THREE.TextureLoader().load("/images/clouds1_up.bmp")
+let texture_dn = new THREE.TextureLoader().load("/images/clouds1_down.bmp")
+let texture_rt = new THREE.TextureLoader().load("/images/clouds1_east.bmp")
+let texture_lf = new THREE.TextureLoader().load("/images/clouds1_west.bmp")
 
 
 materialarray.push(new THREE.MeshBasicMaterial({map: texture_ft}));
@@ -163,14 +170,14 @@ materialarray.push(new THREE.MeshBasicMaterial({map: texture_lf}));
 materialarray.push(new THREE.MeshBasicMaterial({map: texture_rt}));
 // materialarray.push(new THREE.MeshBasicMaterial({map: texture_up}))
 
-for (i = 0; i < 6; i++) {
+for (let i = 0; i < 6; i++) {
     materialarray[i].side = THREE.DoubleSide;
 }
 
 //  Box
 let length = 150;
-skyboxGeo = new THREE.BoxGeometry(length, length, length);
-skybox = new THREE.Mesh(skyboxGeo, materialarray);
+let skyboxGeo = new THREE.BoxGeometry(length, length, length);
+const skybox = new THREE.Mesh(skyboxGeo, materialarray);
 scene.add(skybox);
 
 
@@ -187,7 +194,7 @@ const enemies = [];
 
 
 // renderer
-const renderer = new THREE.WebGL1Renderer({alpha: true});
+const renderer = new THREE.WebGL1Renderer({alpha: true, antialias: true});
 renderer.setSize(width, height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
@@ -196,6 +203,7 @@ const container = document.querySelector('#threejs-container');
 container.append(renderer.domElement);
 renderer.shadowMap.enabled = true;
 renderer.render(scene, camera);
+
 
 
 
@@ -221,7 +229,7 @@ document.addEventListener("keydown", function (event) {
 
     } else if (event.code == "Space") {
 
-        cube.velocity.y = 0.6;
+        cube.velocity.y = 0.9;
 
     }
 
@@ -272,11 +280,13 @@ function animate() {
 
     if (spawnrate > 10) spawnrate--;
 
-
+    
     frames++;
     const animationId = requestAnimationFrame(animate);
     renderer.render(scene, camera);
     skybox.rotateY(0.0001);
+
+
 
 
     cube.velocity.x = 0;
@@ -328,9 +338,5 @@ function animate() {
 animate();
 
 
-function spin() {
 
-    console.log("akj")
-    document.getElementById("score").classList.add("animate")
-
-}
+});

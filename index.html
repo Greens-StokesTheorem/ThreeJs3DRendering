@@ -1,6 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
    <head>
+
+      <script type="importmap">
+         {
+             "imports": {
+                     "three": "https://unpkg.com/three@0.148.0/build/three.module.js",
+                     "three/addons/": "https://unpkg.com/three@0.148.0/examples/jsm/"
+             }
+         }
+     </script>
+
+
       <meta charset="UTF-8" />
       <meta http-equiv="X-UA-Compatible" content="ie=edge" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -76,10 +87,13 @@
 
       </style>
 
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+      <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script> -->
+      <script src="/modules/three.min.js"></script>
 
    </head>
-   <body onload="spin()">
+
+
+   <body >
 
 
       <div id="threejs-container"></div>
@@ -89,9 +103,16 @@
 
       <div id="score">0</div>
 
-      <script src="script.js">
-      </script>
+      <script type="module" src="script.js"></script>
 
+      <script type="module">
+
+         // import * as THREE from "../modules/three.module.js"
+         // import { FirstPersonControls } from "../modules/FirstPersonControls.js"
+         // import { OrbitControls } from "../modules/OrbitControls.js";
+
+
+      </script>
       
 
    </body>
