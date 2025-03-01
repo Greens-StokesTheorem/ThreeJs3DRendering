@@ -22,13 +22,43 @@ scene.background = new THREE.Color("#262626");
 
 
 // camera
+// camera.position.set(0, 2, 6);
+// camera.lookAt(new THREE.Vector3(0,1,0));
+
+
+class Chamera extends THREE.PerspectiveCamera {
+
+    constructor({position = {x: 0, y: 0, z: 0}, lookat = {x: 0, y: 0, z: 0}, fov, aspect, near, far, velocity = {
+        x: 0,
+        y: 0,
+        z: 0
+    }}) {
+
+        super(fov, aspect, near, far);
+
+        this.position.set(position.x, position.y, position.z);
+        this.lookAt(lookat.x, lookat.y, lookat.z);
+        this.velocity = velocity
+    }
+
+    update(ground) {
+
+        this.position.x += this.velocity.x;
+        this.position.z += this.velocity.z;
+
+    }
+
+}
+
 const fov = 80;
 const aspect = width / height;
 const near = 0.1;   //  Where the objects starts to be visible
 const far = 30000;   //  Where the objects stop being visible
-const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-camera.position.set(0, 7, 6);
-camera.lookAt(new THREE.Vector3(0,1,0));
+const camera1 = new THREE.PerspectiveCamera(fov, aspect, near, far);
+const camera = new Chamera({position: {x: 0, y: 2, z: 6}, lookat: {x: 0, y: 1, z: 0}, fov: fov, aspect: aspect, near: near, far: far, velocity: {x: 0, y: 0, z: 0}})
+
+
+
 
 class Box extends THREE.Mesh {
 
@@ -39,7 +69,7 @@ class Box extends THREE.Mesh {
     }, position = {
         x: 0,
         y: 0,
-        z: 0}, zAcceleration = false}) {
+        z: 0}}) {
 
         super(new THREE.BoxGeometry(width, height, depth), 
               new THREE.MeshStandardMaterial({ color: color}));
@@ -52,59 +82,27 @@ class Box extends THREE.Mesh {
         this.bottom = this.position.y - this.height / 2;
         this.top = this.position.y + this.height / 2;
 
-        this.right = this.position.x + this.width / 2;
-        this.left = this.position.x - this.width / 2;
-
-        this.front = this.position.z - this.depth / 2;
-        this.back = this.position.z + this.depth / 2;
-
         this.velocity = velocity;
         this.gravity = -0.06;
-        this.zAcceleration = zAcceleration;
         
     }
 
-    updateSides() {
+    update(group) {
 
         this.bottom = this.position.y - this.height / 2;
         this.top = this.position.y + this.height / 2;
 
-        this.right = this.position.x + this.width / 2;
-        this.left = this.position.x - this.width / 2;
-
-        this.front = this.position.z - this.depth / 2;
-        this.back = this.position.z + this.depth / 2;
-
-    }
-
-    update(ground) {
-
-        this.updateSides();
-
-        if (this.zAcceleration) this.velocity.z += 0.001;
-
         this.position.x += this.velocity.x;
         this.position.z += this.velocity.z;
 
-        // const xCollision = this.right >= ground.left && this.left <= ground.right;
-        // const yCollision = this.bottom <= ground.top && this.top >= ground.bottom;
-        // const zCollision = this.back >= ground.front && this.front <= ground.back;
-
-        //  Detech the collision
-
-        if (boxcollision({box1: cube, box2: ground})) {
-            console.log("collision");
-        }
-
         this.velocity.y += this.gravity;
-        this.applygravity(ground);
-
+        this.applygravity();
 
     }
 
-    applygravity(ground) {
+    applygravity() {
 
-        if (boxcollision({box1: this, box2: ground})) {
+        if (this.bottom + this.velocity.y <= ground.top) {
 
             //  Changes direction of movement
             this.velocity.y *= 0.8;
@@ -120,16 +118,6 @@ class Box extends THREE.Mesh {
 
 }
 
-function boxcollision({box1, box2}) {
-
-    const xCollision = box1.right >= box2.left && box1.left <= box2.right;
-    const yCollision = box1.bottom + box1.velocity.y <= box2.top && box1.top >= box2.bottom;
-    const zCollision = box1.back >= box2.front && box1.front <= box2.back;
-
-
-    return xCollision && yCollision && zCollision
-
-}
 
 
 // cube
@@ -181,11 +169,11 @@ ground.receiveShadow = true;
 scene.add( ground );
 
 
-// const enemy = new Box({width: 1, height: 1, depth: 1, velocity: {x: 0, y: -0.1, z: 0.03}, position: {x: 0, y: 2, z: -14}, color: "red", zAcceleration: true});
-// enemy.castShadow = true;
-// scene.add(enemy);
-// const enemies = [enemy];
-const enemies = [];
+//  Controls
+// const orbit = new OrbitControls(camera, renderer.domElement);
+// orbit.update();
+
+
 
 
 // renderer
@@ -248,11 +236,12 @@ document.addEventListener("keyup", function (event) {
 })
 
 
-function random(min, max) {
-
-    return Math.floor(Math.random() * (max - min + 1)) + min;
-
+function random() {
+    return Math.floor(Math.random() * 5);
 }
+
+
+//  true is left     false is right (ironic)
 
 
 document.getElementById("switch").addEventListener("click", function (event) {
@@ -261,61 +250,31 @@ document.getElementById("switch").addEventListener("click", function (event) {
     window.location.href = "gravitytest.html";
 
 })
-document.getElementById("switchcamera").addEventListener("click", function (event) {
 
-    window.location.href = "changecamera.html"
-
-})
-
-
-
-let frames = 0;
 function animate() {
 
-    frames++;
-    const animationId = requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
     renderer.render(scene, camera);
     skybox.rotateY(0.0001);
 
 
-    cube.velocity.x = 0;
-    cube.velocity.z = 0;
+    camera.velocity.x = 0;
+    camera.velocity.z = 0;
 
 
     if (controls.w.pressed) {
-        cube.velocity.z = -0.2;
+        camera.velocity.z = -0.1;
     } else if (controls.s.pressed) {
-        cube.velocity.z = 0.2;
+        camera.velocity.z = 0.1;
     }
     
     if (controls.a.pressed) {
-        cube.velocity.x = -0.2;
+        camera.velocity.x = -0.1;
     } else if (controls.d.pressed) {
-        cube.velocity.x = 0.2;
+        camera.velocity.x = 0.1;
     } 
 
-    cube.update(ground);
-    enemies.forEach(Enemy => {
-        Enemy.update(ground);
-        if (boxcollision({box1: cube, box2: Enemy})) {
-            cancelAnimationFrame(animationId)
-        }
-    })
-
-    if (frames % 30 === 0) {
-
-        console.log("/")
-        const enemy = new Box({width: 1, height: 1, depth: 1, 
-            velocity: {x: 0, y: -0.1, z: 0.03}, 
-            position: {x: random(-5,5), y: 2, z: -14}, color: "red", 
-            zAcceleration: true});
-
-        enemy.castShadow = true;
-        scene.add(enemy);
-        enemies.push(enemy);
-
-    }
-
+    camera.update(ground);
 
 }
 
