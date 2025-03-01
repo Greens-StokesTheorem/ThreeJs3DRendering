@@ -1,8 +1,14 @@
 // Hello Cube App
 // Your first Three.js application
+// import { OrbitControls } from "OrbitControls.js";
+
 
 let wdown = false;
 const speed = 0.2;
+let controls = {w: {pressed: false},
+                a: {pressed: false},
+                s: {pressed: false},
+                d: {pressed: false}}
 
 
 // sizes
@@ -16,7 +22,7 @@ scene.background = new THREE.Color("#262626");
 
 // camera
 const fov = 80;
-const aspect = window.innerWidth / window.innerHeight;
+const aspect = width /height;
 const near = 0.1;   //  Where the objects starts to be visible
 const far = 30000;   //  Where the objects stop being visible
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
@@ -55,8 +61,11 @@ class Box extends THREE.Mesh {
         this.bottom = this.position.y - this.height / 2;
         this.top = this.position.y + this.height / 2;
 
+        this.position.x += this.velocity.x;
+        this.position.z += this.velocity.z;
+
         this.velocity.y += this.gravity;
-        this.applygravity()
+        this.applygravity();
 
     }
 
@@ -143,33 +152,25 @@ renderer.render(scene, camera);
 
 
 
-
-
-document.addEventListener("keyup", function () {
-    wdown = false;
-})
-
 document.addEventListener("keydown", function (event) {
 
-    if (event.key == "w") {
 
-        wdown = true;
-        animatey(true);
 
-    } else if (event.key == "s") {
+    if (event.code == "KeyW") {
 
-        wdown = true;
-        animatey(false);
+        controls.w.pressed = true;
+
+    } else if (event.code == "KeyS") {
+
+        controls.s.pressed = true;
     
-    } else if (event.key == "a") {
+    } else if (event.code == "KeyA") {
 
-        wdown = true;
-        animatex(true);
+        controls.a.pressed = true;
 
-    } else if (event.key == "d") {
+    } else if (event.code == "KeyD") {
 
-        wdown = true;
-        animatex(false);
+        controls.d.pressed = true;
 
     } else if (event.key == "m") {
 
@@ -179,14 +180,28 @@ document.addEventListener("keydown", function (event) {
 
         animate(ground);
 
-    } else {
+    } else if (event.code == "Space") {
 
-        // const geometry = new THREE.BoxGeometry(random(), random(), random());
-        // const material = new THREE.MeshNormalMaterial();
-        // const cube = new THREE.Mesh(geometry, material);
-        // cube.position.set(-random(),random(),-random());
-        // scene.add(cube);
-        // renderer.render(scene, camera);
+        cube.velocity.y = 0.6;
+
+    }
+
+})
+
+document.addEventListener("keyup", function (event) {
+
+    if (event.code == "KeyW") {
+        controls.w.pressed = false;
+
+    } else if (event.code == "KeyS") {
+        controls.s.pressed = false;
+    
+    } else if (event.code == "KeyA") {
+        controls.a.pressed = false;
+
+    } else if (event.code == "KeyD") {
+        controls.d.pressed = false;
+
     }
 
 })
@@ -211,9 +226,29 @@ function animate() {
 
     requestAnimationFrame(animate);
     renderer.render(scene, camera);
-    skybox.rotateY(0.001);
+    skybox.rotateY(0.0001);
+
+
+    cube.velocity.x = 0;
+    cube.velocity.z = 0;
+
+
+    if (controls.w.pressed) {
+        cube.velocity.z = -0.1;
+    } else if (controls.s.pressed) {
+        cube.velocity.z = 0.1;
+    }
+    
+    if (controls.a.pressed) {
+        cube.velocity.x = -0.1;
+    } else if (controls.d.pressed) {
+        cube.velocity.x = 0.1;
+    } 
+
     cube.update(ground);
 
 }
+
+
 
 animate();
